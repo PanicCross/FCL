@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FCL Racing Admin Standings</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --text-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
+      --text-sm: clamp(0.875rem, 0.8rem + 0.35vw, 1rem);
+      --text-base: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+      --text-lg: clamp(1.125rem, 1rem + 0.75vw, 1.5rem);
+      --text-xl: clamp(1.5rem, 1.2rem + 1.25vw, 2.25rem);
+      --text-2xl: clamp(2rem, 1.2rem + 2.5vw, 3.5rem);
+      --space-1: 0.25rem; --space-2: 0.5rem; --space-3: 0.75rem; --space-4: 1rem;
+      --space-5: 1.25rem; --space-6: 1.5rem; --space-8: 2rem; --space-10: 2.5rem; --space-12: 3rem; --space-16: 4rem;
+      --radius-sm: 0.375rem; --radius-md: 0.5rem; --radius-lg: 0.75rem; --radius-xl: 1rem; --radius-full: 9999px;
+      --transition-interactive: 180ms cubic-bezier(0.16, 1, 0.3, 1);
+      --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.2);
+      --shadow-md: 0 12px 40px rgb(0 0 0 / 0.35);
+      --color-bg: #0a0c14;
+      --color-surface: #111524;
+      --color-surface-2: #171c2d;
+      --color-surface-offset: #1d2234;
+      --color-border: rgb(255 255 255 / 0.09);
+      --color-divider: rgb(255 255 255 / 0.08);
+      --color-text: #f4f6fb;
+      --color-text-muted: #a5afc7;
+      --color-text-faint: #74809b;
+      --color-primary: #ff7a1a;
+      --color-primary-hover: #ff8d3c;
+      --color-cyan: #6ce5ff;
+      --color-green: #0ea35e;
+      --color-danger: #ff657a;
+      --font-display: 'Rajdhani', sans-serif;
+      --font-body: 'Barlow', sans-serif;
+      --content-wide: 1280px;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{-webkit-text-size-adjust:none;text-size-adjust:none;scroll-behavior:smooth}
+    body{min-height:100dvh;font-family:var(--font-body);font-size:var(--text-base);line-height:1.6;background:radial-gradient(circle at top, rgb(19 26 49 / 0.84), transparent 38%),var(--color-bg);color:var(--color-text)}
+    img,svg{display:block;max-width:100%;height:auto}
+    button,input,textarea,select{font:inherit;color:inherit}
+    button{cursor:pointer;border:none;background:none}
+    a{text-decoration:none;color:inherit}
+    .skip-link{position:absolute;left:-999px}.skip-link:focus{left:1rem;top:1rem;background:var(--color-primary);color:#111;padding:0.7rem 1rem;border-radius:var(--radius-sm);z-index:100}
+    .container{width:min(calc(100% - 2rem),var(--content-wide));margin-inline:auto}
+    header{position:sticky;top:0;z-index:20;background:rgb(10 12 20 / 0.88);backdrop-filter:blur(14px);border-bottom:1px solid var(--color-divider)}
+    .nav{display:flex;align-items:center;justify-content:space-between;gap:var(--space-4);padding:var(--space-4) 0}
+    .brand{display:flex;align-items:center;gap:var(--space-3)}
+    .brand img{width:120px}
+    .brand-copy strong{display:block;font-family:var(--font-display);font-size:var(--text-lg);line-height:1}
+    .brand-copy span{display:block;font-size:var(--text-sm);color:var(--color-text-muted)}
+    .nav-actions{display:flex;gap:var(--space-3);align-items:center;flex-wrap:wrap}
+    .pill{display:inline-flex;align-items:center;gap:var(--space-2);padding:0.7rem 1rem;border-radius:var(--radius-full);border:1px solid var(--color-border);background:var(--color-surface);color:var(--color-text-muted);font-weight:700}
+    .pill.live{color:#98f0c3;border-color:rgb(14 163 94 / 0.28);background:rgb(14 163 94 / 0.08)}
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:0.55rem;min-height:44px;padding:0.8rem 1.1rem;border-radius:var(--radius-full);font-weight:800;transition:transform var(--transition-interactive),background var(--transition-interactive),border-color var(--transition-interactive),color var(--transition-interactive);border:1px solid transparent}
+    .btn:hover{transform:translateY(-1px)}
+    .btn-primary{background:var(--color-primary);color:#111}
+    .btn-primary:hover{background:var(--color-primary-hover)}
+    .btn-secondary{background:var(--color-surface);border-color:var(--color-border);color:var(--color-text)}
+    .btn-danger{background:rgb(255 101 122 / 0.12);border-color:rgb(255 101 122 / 0.25);color:#ffc0c8}
+    main{padding:var(--space-8) 0 var(--space-16)}
+    .hero{display:grid;grid-template-columns:1.2fr 0.8fr;gap:var(--space-8);align-items:end;padding-bottom:var(--space-8)}
+    .eyebrow{display:inline-flex;align-items:center;padding:0.45rem 0.8rem;border-radius:var(--radius-full);border:1px solid rgb(255 122 26 / 0.24);background:rgb(255 122 26 / 0.1);color:#ffd2b0;font-size:var(--text-sm);font-weight:700;text-transform:uppercase;letter-spacing:0.06em}
+    h1{font-family:var(--font-display);font-size:var(--text-2xl);line-height:0.95;letter-spacing:0.03em;margin-top:var(--space-4);max-width:12ch}
+    .hero p{margin-top:var(--space-4);max-width:60ch;color:var(--color-text-muted)}
+    .hero-card,.panel{background:linear-gradient(180deg, rgb(255 255 255 / 0.04), rgb(255 255 255 / 0.015));border:1px solid var(--color-border);border-radius:1.25rem;box-shadow:var(--shadow-md)}
+    .hero-card{padding:var(--space-6)}
+    .stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--space-4);margin-top:var(--space-5)}
+    .stat{padding:var(--space-4);border-radius:var(--radius-lg);background:var(--color-surface);border:1px solid var(--color-border)}
+    .stat span{display:block;color:var(--color-text-faint);font-size:var(--text-sm)}
+    .stat strong{display:block;font-family:var(--font-display);font-size:var(--text-xl);line-height:1.05;margin-top:var(--space-2)}
+    .panel{margin-top:var(--space-8);overflow:hidden}
+    .panel-head{display:flex;align-items:center;justify-content:space-between;gap:var(--space-4);padding:var(--space-5);border-bottom:1px solid var(--color-divider)}
+    .panel-head h2{font-family:var(--font-display);font-size:var(--text-xl);line-height:1}
+    .panel-head p{color:var(--color-text-muted);font-size:var(--text-sm)}
+    .table-wrap{overflow:auto;padding:var(--space-4)}
+    table{width:100%;border-collapse:collapse;min-width:760px}
+    th,td{padding:0.95rem 0.8rem;text-align:left;border-bottom:1px solid var(--color-divider);vertical-align:middle}
+    th{font-size:var(--text-sm);font-weight:700;color:var(--color-text-muted)}
+    tbody tr:hover{background:rgb(255 255 255 / 0.025)}
+    tbody tr:last-child td{border-bottom:none}
+    .points{color:var(--color-cyan);font-weight:800}
+    .driver{font-weight:700}
+    .chip{display:inline-flex;align-items:center;padding:0.35rem 0.7rem;border-radius:var(--radius-full);background:rgb(14 163 94 / 0.12);border:1px solid rgb(14 163 94 / 0.22);color:#98f0c3;font-size:var(--text-sm);font-weight:700}
+    .admin-bar{display:none;position:sticky;top:81px;z-index:15;margin-bottom:var(--space-8);padding:var(--space-4);border:1px solid rgb(255 122 26 / 0.2);border-radius:var(--radius-xl);background:rgb(255 122 26 / 0.08);backdrop-filter:blur(10px)}
+    .admin-bar.active{display:flex;justify-content:space-between;align-items:center;gap:var(--space-4);flex-wrap:wrap}
+    .admin-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-8);margin-top:var(--space-8)}
+    .editor{display:none;padding:var(--space-5)}
+    .editor.active{display:block}
+    .editor-grid{display:grid;grid-template-columns:1fr;gap:var(--space-6)}
+    .field-group{display:grid;gap:var(--space-2)}
+    .field-group label{font-size:var(--text-sm);font-weight:700;color:var(--color-text-muted)}
+    .field-group input,.field-group textarea,.field-group select{width:100%;min-height:44px;padding:0.85rem 0.9rem;border-radius:var(--radius-md);border:1px solid var(--color-border);background:var(--color-surface);color:var(--color-text)}
+    .field-group textarea{min-height:120px;resize:vertical}
+    .row-card{padding:var(--space-4);border:1px solid var(--color-border);border-radius:var(--radius-lg);background:var(--color-surface);display:grid;gap:var(--space-4)}
+    .row-card-header{display:flex;justify-content:space-between;align-items:center;gap:var(--space-3)}
+    .row-card-header strong{font-family:var(--font-display);font-size:var(--text-lg)}
+    .row-fields{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--space-3)}
+    .row-actions{display:flex;gap:var(--space-2);flex-wrap:wrap}
+    .mini-btn{min-height:40px;padding:0.65rem 0.9rem;border-radius:var(--radius-full);background:var(--color-surface-2);border:1px solid var(--color-border);font-size:var(--text-sm);font-weight:700}
+    .mini-btn.delete{color:#ffc0c8;border-color:rgb(255 101 122 / 0.25);background:rgb(255 101 122 / 0.1)}
+    .panel-note{padding:0 var(--space-5) var(--space-5);color:var(--color-text-faint);font-size:var(--text-sm)}
+    .modal-backdrop{position:fixed;inset:0;background:rgb(0 0 0 / 0.62);display:none;align-items:center;justify-content:center;padding:1rem;z-index:50}
+    .modal-backdrop.active{display:flex}
+    .modal{width:min(100%,420px);padding:var(--space-6);border-radius:1.25rem;background:var(--color-surface-2);border:1px solid var(--color-border);box-shadow:var(--shadow-md)}
+    .modal h2{font-family:var(--font-display);font-size:var(--text-xl);margin-bottom:var(--space-2)}
+    .modal p{color:var(--color-text-muted);margin-bottom:var(--space-5)}
+    .modal-actions{display:flex;gap:var(--space-3);justify-content:flex-end;margin-top:var(--space-5);flex-wrap:wrap}
+    .hidden{display:none !important}
+    .footer{padding-top:var(--space-8);color:var(--color-text-faint);font-size:var(--text-sm)}
+    @media (max-width: 980px){
+      .hero,.admin-grid{grid-template-columns:1fr}
+      .row-fields{grid-template-columns:1fr 1fr}
+    }
+    @media (max-width: 760px){
+      .nav{flex-direction:column;align-items:flex-start}
+      .brand img{width:100px}
+      .stat-grid,.row-fields{grid-template-columns:1fr}
+      .admin-bar.active{top:132px}
+      h1{max-width:none}
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#content">Skip to content</a>
+  <header>
+    <div class="container nav">
+      <div class="brand">
+        <img src="./assets/logo-2.jpg" alt="FCL Racing logo" width="120" height="66" />
+        <div class="brand-copy">
+          <strong>FCL Racing</strong>
+          <span>Admin-ready standings page</span>
+        </div>
+      </div>
+      <div class="nav-actions">
+        <span class="pill live" id="lastUpdatedBadge">Manual mode · Live page</span>
+        <button class="btn btn-secondary" id="openLoginBtn" type="button">Admin login</button>
+        <button class="btn btn-danger hidden" id="logoutBtn" type="button">Exit admin</button>
+      </div>
+    </div>
+  </header>
+
+  <main id="content" class="container">
+    <section class="hero">
+      <div>
+        <div class="eyebrow" id="leagueEyebrow">FCL Multi Class Championship 2026</div>
+        <h1 id="leagueTitle">Drivers and team standings in one editable league page.</h1>
+        <p id="leagueIntro">Use admin mode to edit your league title, intro text, driver standings, and team standings directly on the page. Export your changes to JSON and import them again later.</p>
+      </div>
+      <aside class="hero-card">
+        <p class="pill">No backend needed</p>
+        <div class="stat-grid">
+          <div class="stat"><span>Drivers</span><strong id="driverCount">7</strong></div>
+          <div class="stat"><span>Teams</span><strong id="teamCount">4</strong></div>
+          <div class="stat"><span>Mode</span><strong id="modeLabel">Viewer</strong></div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="admin-bar" id="adminBar" aria-label="Admin actions">
+      <div>
+        <strong>Admin mode is on.</strong>
+        <p class="panel-note">Edit content below, then export your data file so you can load it again later.</p>
+      </div>
+      <div class="nav-actions">
+        <button class="btn btn-secondary" id="importBtn" type="button">Import JSON</button>
+        <button class="btn btn-primary" id="exportBtn" type="button">Export JSON</button>
+        <input type="file" id="importFile" accept="application/json" class="hidden" />
+      </div>
+    </section>
+
+    <section class="panel" aria-labelledby="drivers-title">
+      <div class="panel-head">
+        <div>
+          <h2 id="drivers-title">Drivers Championship</h2>
+          <p>Public standings table with admin-side manual editing.</p>
+        </div>
+        <span class="chip">FCL Racing</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Pos</th>
+              <th>Driver</th>
+              <th>Team</th>
+              <th>Points</th>
+              <th>Wins</th>
+              <th>Avg Start</th>
+              <th>Avg Finish</th>
+            </tr>
+          </thead>
+          <tbody id="driversTableBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel" aria-labelledby="teams-title">
+      <div class="panel-head">
+        <div>
+          <h2 id="teams-title">Team Championship</h2>
+          <p>Team standings are calculated automatically from driver points.</p>
+        </div>
+        <span class="chip">Auto totals</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Pos</th>
+              <th>Team</th>
+              <th>Drivers</th>
+              <th>Points</th>
+              <th>Wins</th>
+              <th>Podiums</th>
+            </tr>
+          </thead>
+          <tbody id="teamsTableBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel editor" id="editorPanel" aria-labelledby="editor-title">
+      <div class="panel-head">
+        <div>
+          <h2 id="editor-title">Admin editor</h2>
+          <p>Everything below is editable without touching the HTML code.</p>
+        </div>
+        <span class="chip">Admin only</span>
+      </div>
+      <div class="editor-grid">
+        <div class="panel" style="margin:0;">
+          <div class="panel-head">
+            <div>
+              <h2>League details</h2>
+              <p>Update the hero content shown to visitors.</p>
+            </div>
+          </div>
+          <div class="editor-grid" style="padding:1.25rem;">
+            <div class="field-group">
+              <label for="eyebrowInput">Eyebrow label</label>
+              <input id="eyebrowInput" type="text" />
+            </div>
+            <div class="field-group">
+              <label for="titleInput">Main title</label>
+              <input id="titleInput" type="text" />
+            </div>
+            <div class="field-group">
+              <label for="introInput">Intro text</label>
+              <textarea id="introInput"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="admin-grid" style="margin-top:0;">
+          <div class="panel" style="margin:0;">
+            <div class="panel-head">
+              <div>
+                <h2>Driver rows</h2>
+                <p>Add, edit, reorder, or delete driver standings.</p>
+              </div>
+              <button class="btn btn-primary" type="button" id="addDriverBtn">Add driver</button>
+            </div>
+            <div class="editor-grid" id="driverEditorList" style="padding:1.25rem;"></div>
+          </div>
+
+          <div class="panel" style="margin:0;">
+            <div class="panel-head">
+              <div>
+                <h2>Team rows</h2>
+                <p>Team standings are derived from the drivers table.</p>
+              </div>
+              <button class="btn btn-primary" type="button" id="addTeamBtn" disabled>Teams auto-calculated</button>
+            </div>
+            <div class="editor-grid" id="teamEditorList" style="padding:1.25rem;">
+              <p style="color:#a5afc7;font-size:0.9rem;">Teams are rebuilt from driver data whenever you edit driver points, wins, or teams. You do not need to edit team rows manually.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <p class="footer">Simple admin mode for FCL Racing. Use Export JSON after changes so your data can be reused later.</p>
+  </main>
+
+  <div class="modal-backdrop" id="loginModal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="loginTitle">
+      <h2 id="loginTitle">Admin login</h2>
+      <p>This is a light front-end lock for convenience only. Default password: <strong>fcladmin</strong>.</p>
+      <div class="field-group">
+        <label for="passwordInput">Password</label>
+        <input id="passwordInput" type="password" placeholder="Enter password" />
+      </div>
+      <p id="loginError" class="hidden" style="color:#ffc0c8;margin-top:0.75rem;">Wrong password. Try again.</p>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" type="button" id="cancelLoginBtn">Cancel</button>
+        <button class="btn btn-primary" type="button" id="submitLoginBtn">Enter admin</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const ADMIN_PASSWORD = 'fcladmin';
+    let adminMode = false;
+
+    let state = {
+      meta: {
+        eyebrow: 'FCL Multi Class Championship 2026',
+        title: 'Drivers and team standings in one editable league page.',
+        intro: 'Use admin mode to edit your league title, intro text, driver standings, and team standings directly on the page. Export your changes to JSON and import them again later.',
+        updated: new Date().toISOString()
+      },
+      drivers: [
+        { pos: 1, driver: 'David Burke10', team: 'FCL Racing', points: 85, wins: 3, avgStart: 3, avgFinish: 4 },
+        { pos: 2, driver: 'Ian McNally', team: 'Leznally GP', points: 63, wins: 0, avgStart: 3, avgFinish: 3 },
+        { pos: 3, driver: 'Stephen Garrett3', team: 'Kimistroll Motorsport', points: 62, wins: 1, avgStart: 8, avgFinish: 7 },
+        { pos: 4, driver: 'Geertjan Randy Paters', team: 'Geertjan RC', points: 51, wins: 0, avgStart: 6, avgFinish: 6 },
+        { pos: 5, driver: 'David Bellew', team: 'Geertjan RC', points: 48, wins: 0, avgStart: 3, avgFinish: 3 },
+        { pos: 6, driver: 'Gary Carr', team: 'Kimistroll Motorsport', points: 22, wins: 0, avgStart: 5, avgFinish: 5 },
+        { pos: 7, driver: 'Aleksander Lesniak', team: 'Leznally GP', points: 12, wins: 0, avgStart: 5, avgFinish: 4 }
+      ],
+      teams: [
+        { pos: 1, team: 'FCL Racing', drivers: 'David Burke / Alex Murphy', points: 0, wins: 0, podiums: 0 },
+        { pos: 2, team: 'Kimistroll Motorsport', drivers: 'Stephen Garrett / Garry Carr', points: 0, wins: 0, podiums: 0 },
+        { pos: 3, team: 'Geertjan RC', drivers: 'Geertjan Randy Paters / David Bellew', points: 0, wins: 0, podiums: 0 },
+        { pos: 4, team: 'Leznally GP', drivers: 'Aleksander Lezniak / Ian McNally', points: 0, wins: 0, podiums: 0 }
+      ]
+    };
+
+    const el = {
+      leagueEyebrow: document.getElementById('leagueEyebrow'),
+      leagueTitle: document.getElementById('leagueTitle'),
+      leagueIntro: document.getElementById('leagueIntro'),
+      lastUpdatedBadge: document.getElementById('lastUpdatedBadge'),
+      driverCount: document.getElementById('driverCount'),
+      teamCount: document.getElementById('teamCount'),
+      modeLabel: document.getElementById('modeLabel'),
+      driversTableBody: document.getElementById('driversTableBody'),
+      teamsTableBody: document.getElementById('teamsTableBody'),
+      editorPanel: document.getElementById('editorPanel'),
+      adminBar: document.getElementById('adminBar'),
+      openLoginBtn: document.getElementById('openLoginBtn'),
+      logoutBtn: document.getElementById('logoutBtn'),
+      loginModal: document.getElementById('loginModal'),
+      passwordInput: document.getElementById('passwordInput'),
+      loginError: document.getElementById('loginError'),
+      cancelLoginBtn: document.getElementById('cancelLoginBtn'),
+      submitLoginBtn: document.getElementById('submitLoginBtn'),
+      importBtn: document.getElementById('importBtn'),
+      exportBtn: document.getElementById('exportBtn'),
+      importFile: document.getElementById('importFile'),
+      eyebrowInput: document.getElementById('eyebrowInput'),
+      titleInput: document.getElementById('titleInput'),
+      introInput: document.getElementById('introInput'),
+      addDriverBtn: document.getElementById('addDriverBtn'),
+      addTeamBtn: document.getElementById('addTeamBtn'),
+      driverEditorList: document.getElementById('driverEditorList'),
+      teamEditorList: document.getElementById('teamEditorList')
+    };
+
+    function stampUpdated() {
+      state.meta.updated = new Date().toISOString();
+    }
+
+    function formatUpdated(value) {
+      return 'Updated: ' + new Date(value).toLocaleString();
+    }
+
+    function sortAndReindexDrivers() {
+      state.drivers.sort((a, b) => {
+        const pointsDiff = Number(b.points) - Number(a.points);
+        if (pointsDiff !== 0) return pointsDiff;
+        const winsDiff = Number(b.wins) - Number(a.wins);
+        if (winsDiff !== 0) return winsDiff;
+        return Number(a.avgFinish) - Number(b.avgFinish);
+      });
+      state.drivers.forEach((row, index) => (row.pos = index + 1));
+    }
+
+    function sortAndReindexTeams() {
+      state.teams.sort((a, b) => {
+        const pointsDiff = Number(b.points) - Number(a.points);
+        if (pointsDiff !== 0) return pointsDiff;
+        const winsDiff = Number(b.wins) - Number(a.wins);
+        if (winsDiff !== 0) return winsDiff;
+        return Number(b.podiums) - Number(a.podiums);
+      });
+      state.teams.forEach((row, index) => (row.pos = index + 1));
+    }
+
+    function recomputeTeamsFromDrivers() {
+      const map = new Map();
+      state.drivers.forEach(d => {
+        const teamName = d.team || 'No Team';
+        if (!map.has(teamName)) {
+          map.set(teamName, {
+            team: teamName,
+            drivers: new Set(),
+            points: 0,
+            wins: 0,
+            podiums: 0
+          });
+        }
+        const t = map.get(teamName);
+        t.drivers.add(d.driver);
+        t.points += Number(d.points) || 0;
+        t.wins += Number(d.wins) || 0;
+      });
+      state.teams = Array.from(map.values()).map((t, index) => ({
+        pos: index + 1,
+        team: t.team,
+        drivers: Array.from(t.drivers).join(' / '),
+        points: t.points,
+        wins: t.wins,
+        podiums: t.podiums
+      }));
+      sortAndReindexTeams();
+    }
+
+    function renderPublicTables() {
+      sortAndReindexDrivers();
+      sortAndReindexTeams();
+
+      el.leagueEyebrow.textContent = state.meta.eyebrow;
+      el.leagueTitle.textContent = state.meta.title;
+      el.leagueIntro.textContent = state.meta.intro;
+      el.lastUpdatedBadge.textContent = formatUpdated(state.meta.updated);
+      el.driverCount.textContent = state.drivers.length;
+      el.teamCount.textContent = state.teams.length;
+      el.modeLabel.textContent = adminMode ? 'Admin' : 'Viewer';
+
+      el.driversTableBody.innerHTML = state.drivers
+        .map(
+          row => `
+        <tr>
+          <td>${row.pos}</td>
+          <td class="driver">${escapeHtml(row.driver)}</td>
+          <td>${escapeHtml(row.team)}</td>
+          <td class="points">${escapeHtml(String(row.points))}</td>
+          <td>${escapeHtml(String(row.wins))}</td>
+          <td>${escapeHtml(String(row.avgStart))}</td>
+          <td>${escapeHtml(String(row.avgFinish))}</td>
+        </tr>
+      `
+        )
+        .join('');
+
+      el.teamsTableBody.innerHTML = state.teams
+        .map(
+          row => `
+        <tr>
+          <td>${row.pos}</td>
+          <td class="driver">${escapeHtml(row.team)}</td>
+          <td>${escapeHtml(row.drivers)}</td>
+          <td class="points">${escapeHtml(String(row.points))}</td>
+          <td>${escapeHtml(String(row.wins))}</td>
+          <td>${escapeHtml(String(row.podiums))}</td>
+        </tr>
+      `
+        )
+        .join('');
+    }
+
+    function renderEditors() {
+      el.eyebrowInput.value = state.meta.eyebrow;
+      el.titleInput.value = state.meta.title;
+      el.introInput.value = state.meta.intro;
+
+      el.driverEditorList.innerHTML = state.drivers
+        .map(
+          (row, index) => `
+        <div class="row-card">
+          <div class="row-card-header">
+            <strong>Driver ${index + 1}</strong>
+            <div class="row-actions">
+              <button class="mini-btn" type="button" onclick="moveDriver(${index}, -1)">Up</button>
+              <button class="mini-btn" type="button" onclick="moveDriver(${index}, 1)">Down</button>
+              <button class="mini-btn delete" type="button" onclick="deleteDriver(${index})">Delete</button>
+            </div>
+          </div>
+          <div class="row-fields">
+            <div class="field-group"><label>Driver</label><input type="text" value="${escapeAttribute(
+              row.driver
+            )}" onchange="updateDriver(${index}, 'driver', this.value)"></div>
+            <div class="field-group"><label>Team</label><input type="text" value="${escapeAttribute(
+              row.team
+            )}" onchange="updateDriver(${index}, 'team', this.value)"></div>
+            <div class="field-group"><label>Points</label><input type="number" value="${escapeAttribute(
+              String(row.points)
+            )}" onchange="updateDriver(${index}, 'points', this.value)"></div>
+            <div class="field-group"><label>Wins</label><input type="number" value="${escapeAttribute(
+              String(row.wins)
+            )}" onchange="updateDriver(${index}, 'wins', this.value)"></div>
+            <div class="field-group"><label>Avg Start</label><input type="number" value="${escapeAttribute(
+              String(row.avgStart)
+            )}" onchange="updateDriver(${index}, 'avgStart', this.value)"></div>
+            <div class="field-group"><label>Avg Finish</label><input type="number" value="${escapeAttribute(
+              String(row.avgFinish)
+            )}" onchange="updateDriver(${index}, 'avgFinish', this.value)"></div>
+          </div>
+        </div>
+      `
+        )
+        .join('');
+    }
+
+    function renderAll() {
+      recomputeTeamsFromDrivers();
+      renderPublicTables();
+      renderEditors();
+    }
+
+    function setAdminMode(enabled) {
+      adminMode = enabled;
+      el.editorPanel.classList.toggle('active', enabled);
+      el.adminBar.classList.toggle('active', enabled);
+      el.logoutBtn.classList.toggle('hidden', !enabled);
+      el.openLoginBtn.classList.toggle('hidden', enabled);
+      renderPublicTables();
+    }
+
+    function openLogin() {
+      el.loginModal.classList.add('active');
+      el.loginModal.setAttribute('aria-hidden', 'false');
+      el.passwordInput.value = '';
+      el.loginError.classList.add('hidden');
+      setTimeout(() => el.passwordInput.focus(), 50);
+    }
+
+    function closeLogin() {
+      el.loginModal.classList.remove('active');
+      el.loginModal.setAttribute('aria-hidden', 'true');
+    }
+
+    function tryLogin() {
+      if (el.passwordInput.value === ADMIN_PASSWORD) {
+        setAdminMode(true);
+        closeLogin();
+      } else {
+        el.loginError.classList.remove('hidden');
+      }
+    }
+
+    function updateMetaFromInputs() {
+      state.meta.eyebrow = el.eyebrowInput.value;
+      state.meta.title = el.titleInput.value;
+      state.meta.intro = el.introInput.value;
+      stampUpdated();
+      renderPublicTables();
+    }
+
+    function updateDriver(index, key, value) {
+      state.drivers[index][key] = ['points', 'wins', 'avgStart', 'avgFinish'].includes(key)
+        ? Number(value)
+        : value;
+      stampUpdated();
+      recomputeTeamsFromDrivers();
+      renderPublicTables();
+      renderEditors();
+    }
+
+    function moveDriver(index, direction) {
+      const newIndex = index + direction;
+      if (newIndex < 0 || newIndex >= state.drivers.length) return;
+      [state.drivers[index], state.drivers[newIndex]] = [state.drivers[newIndex], state.drivers[index]];
+      stampUpdated();
+      recomputeTeamsFromDrivers();
+      renderAll();
+    }
+
+    function deleteDriver(index) {
+      state.drivers.splice(index, 1);
+      stampUpdated();
+      recomputeTeamsFromDrivers();
+      renderAll();
+    }
+
+    function addDriver() {
+      state.drivers.push({
+        pos: state.drivers.length + 1,
+        driver: 'New Driver',
+        team: 'FCL Racing',
+        points: 0,
+        wins: 0,
+        avgStart: 0,
+        avgFinish: 0
+      });
+      stampUpdated();
+      recomputeTeamsFromDrivers();
+      renderAll();
+    }
+
+    function exportData() {
+      stampUpdated();
+      const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'fcl-racing-standings-data.json';
+      document.body.appendChild(a);
+      a.click();
+      URL.revokeObjectURL(a.href);
+      a.remove();
+      renderPublicTables();
+    }
+
+    function importData(file) {
+      const reader = new FileReader();
+      reader.onload = event => {
+        try {
+          const imported = JSON.parse(event.target.result);
+          if (!imported.meta || !Array.isArray(imported.drivers) || !Array.isArray(imported.teams)) {
+            throw new Error('Invalid file');
+          }
+          state = imported;
+          stampUpdated();
+          recomputeTeamsFromDrivers();
+          renderAll();
+        } catch (error) {
+          alert('That JSON file is not in the expected format.');
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function escapeHtml(str) {
+      return str.replace(/[&<>\"']/g, tag => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '\"':'&quot;', "'":'&#39;' }[tag]));
+    }
+
+    function escapeAttribute(str) {
+      return escapeHtml(str);
+    }
+
+    el.openLoginBtn.addEventListener('click', openLogin);
+    el.cancelLoginBtn.addEventListener('click', closeLogin);
+    el.submitLoginBtn.addEventListener('click', tryLogin);
+    el.passwordInput.addEventListener('keydown', e => { if (e.key === 'Enter') tryLogin(); });
+    el.logoutBtn.addEventListener('click', () => setAdminMode(false));
+    el.eyebrowInput.addEventListener('input', updateMetaFromInputs);
+    el.titleInput.addEventListener('input', updateMetaFromInputs);
+    el.introInput.addEventListener('input', updateMetaFromInputs);
+    el.addDriverBtn.addEventListener('click', addDriver);
+    el.exportBtn.addEventListener('click', exportData);
+    el.importBtn.addEventListener('click', () => el.importFile.click());
+    el.importFile.addEventListener('change', e => { if (e.target.files[0]) importData(e.target.files[0]); });
+    el.loginModal.addEventListener('click', e => { if (e.target === el.loginModal) closeLogin(); });
+
+    window.updateDriver = updateDriver;
+    window.moveDriver = moveDriver;
+    window.deleteDriver = deleteDriver;
+
+    renderAll();
+  </script>
+</body>
+</html>
